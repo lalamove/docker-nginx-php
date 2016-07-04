@@ -9,6 +9,8 @@ COPY nginx_real_ip.conf    /opt/docker/etc/nginx/conf.d/10-nginx_real_ip.conf
 COPY vhost.conf                      /opt/docker/etc/nginx/vhost.conf
 COPY _main-location-ip-rules.conf    /opt/docker/etc/nginx/_main-location-ip-rules.conf
 COPY _more.conf                      /opt/docker/etc/nginx/_more.conf
+COPY _http-basic-auth.conf           /opt/docker/etc/nginx/_http-basic-auth.conf
+COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 
 
 RUN mkdir -p /usr/share/GeoIP

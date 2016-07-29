@@ -12,6 +12,7 @@ COPY _more.conf                      /opt/docker/etc/nginx/_more.conf
 COPY _http-basic-auth.conf           /opt/docker/etc/nginx/_http-basic-auth.conf
 COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 
+COPY entry.sh                        /entry.sh
 
 RUN mkdir -p /usr/share/GeoIP
 RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz | gunzip > /usr/share/GeoIP/GeoIP.dat
@@ -41,3 +42,5 @@ RUN pecl install mongo
 RUN echo "extension=mongo.so" | sudo tee /etc/php5/mods-available/mongo.ini
 RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/cli/conf.d/20-mongo.ini
 RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/fpm/conf.d/20-mongo.ini
+
+CMD ["/entry.sh"]

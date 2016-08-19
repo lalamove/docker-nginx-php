@@ -43,4 +43,8 @@ RUN echo "extension=mongo.so" | sudo tee /etc/php5/mods-available/mongo.ini
 RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/cli/conf.d/20-mongo.ini
 RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/fpm/conf.d/20-mongo.ini
 
+# do not use native mysql driver
+RUN sudo apt-get remove php5-mysqlnd
+RUN sudo apt-get remove php5-mysql
+
 CMD ["/entry.sh"]

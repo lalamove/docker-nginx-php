@@ -44,7 +44,7 @@ RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/cli/conf.d/20-mongo.in
 RUN sudo ln -sfn ../../mods-available/mongo.ini /etc/php5/fpm/conf.d/20-mongo.ini
 
 # do not use native mysql driver
-RUN sudo apt-get remove php5-mysqlnd
-RUN sudo apt-get remove php5-mysql
+RUN sudo apt-get -q -y remove php5-mysqlnd
+RUN sudo apt-get -q -y install php5-mysql
 
 CMD ["/entry.sh"]

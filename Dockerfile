@@ -49,6 +49,12 @@ RUN sudo apt-get -q -y install php5-mysql
 
 RUN sudo apt-get -q -y install php5-gmp
 
+# newrelic agent
+RUN echo 'deb http://apt.newrelic.com/debian/ newrelic non-free' | sudo tee /etc/apt/sources.list.d/newrelic.list
+RUN wget -O- https://download.newrelic.com/548C16BF.gpg | sudo apt-key add -
+RUN sudo apt-get update
+RUN sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y install newrelic-php5'
+
 CMD ["/entry.sh"]
 
 

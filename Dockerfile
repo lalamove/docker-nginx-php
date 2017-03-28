@@ -13,6 +13,7 @@ COPY _http-basic-auth.conf           /opt/docker/etc/nginx/_http-basic-auth.conf
 COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 
 COPY entry.sh                        /entry.sh
+COPY before-entry.sh                 /before-entry.sh
 
 RUN mkdir -p /usr/share/GeoIP
 RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz | gunzip > /usr/share/GeoIP/GeoIP.dat
@@ -48,6 +49,12 @@ RUN sudo apt-get -q -y remove php5-mysqlnd
 RUN sudo apt-get -q -y install php5-mysql
 
 RUN sudo apt-get -q -y install php5-gmp
+
+# added s3fs command
+RUN sudo add-apt-repository -y ppa:apachelogger/s3fs-fuse
+RUN sudo apt-get update
+RUN sudo apt-get install -q -y s3fs-fuse
+
 
 CMD ["/entry.sh"]
 

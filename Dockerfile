@@ -20,6 +20,7 @@ RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.d
 
 RUN apt-get update
 
+RUN mkdir -p /var/log/php5-fpm/
 
 #RUN apt-get -q -y install php5-mongo
 #RUN apt-get -q -y install php7-mongo  # this line is for basing on ubuntu-16.04
@@ -50,5 +51,3 @@ RUN sudo apt-get -q -y install php5-mysql
 RUN sudo apt-get -q -y install php5-gmp
 
 CMD ["/entry.sh"]
-
-

@@ -1,8 +1,33 @@
 FROM php:5.6.30-fpm-alpine
+
+#---------------------------------------------------
+RUN apk update
+RUN apk add wget
+RUN mkdir -p /var/log/php5-fpm/
+
+#ref: http://www.bictor.com/2015/02/15/installing-mongodb-for-php-in-ubuntu-14-04/
+#ref: https://github.com/mongodb/mongo-php-driver/issues/138
+#ref: http://stackoverflow.com/questions/22555561/error-building-fatal-error-pcre-h-no-such-file-or-directory
+#ref: https://docs.mongodb.com/ecosystem/drivers/php/
 #---------------------------------------------------
 
+#---------------------------------------------------
+# Install PHP packages
+RUN curl go-pear.org
+#RUN apk add php-pear
+RUN apk add php5-dev
+#---------------------------------------------------
+
+#---------------------------------------------------
 RUN apk update && apk add nginx
 RUN rm -rf /etc/nginx/sites-enabled/default
+#---------------------------------------------------
+
+#---------------------------------------------------
+# Install supervisor.d
+RUN apk add -f supervisor
+RUN mkdir -p /var/log/supervisor
+COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 #---------------------------------------------------
 
 #---------------------------------------------------
@@ -25,7 +50,6 @@ COPY _http-basic-auth.conf           /opt/docker/etc/nginx/_http-basic-auth.conf
 COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 #---------------------------------------------------
 
-
 #---------------------------------------------------
 ##Testing nginx
 #COPY nginx.conf                     /etc/nginx/nginx.conf
@@ -40,7 +64,6 @@ COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 #RUN adduser -D -u 1000 -g 'www' www
 #---------------------------------------------------
 
-
 #---------------------------------------------------
 COPY entry.sh                        /entry.sh
 COPY before-entry.sh                 /before-entry.sh
@@ -50,25 +73,6 @@ COPY before-entry.sh                 /before-entry.sh
 RUN mkdir -p /usr/share/GeoIP
 RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz | gunzip > /usr/share/GeoIP/GeoIP.dat
 RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz | gunzip > /usr/share/GeoIP/GeoLiteCity.dat
-#---------------------------------------------------
-
-#---------------------------------------------------
-RUN apk update
-RUN mkdir -p /var/log/php5-fpm/
-
-#ref: http://www.bictor.com/2015/02/15/installing-mongodb-for-php-in-ubuntu-14-04/
-#ref: https://github.com/mongodb/mongo-php-driver/issues/138
-#ref: http://stackoverflow.com/questions/22555561/error-building-fatal-error-pcre-h-no-such-file-or-directory
-#ref: https://docs.mongodb.com/ecosystem/drivers/php/
-#---------------------------------------------------
-
-RUN apk add wget
-
-#---------------------------------------------------
-# Install PHP packages
-RUN curl go-pear.org
-#RUN apk add php-pear
-RUN apk add php5-dev
 #---------------------------------------------------
 
 #---------------------------------------------------

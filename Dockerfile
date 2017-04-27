@@ -27,7 +27,7 @@ RUN rm -rf /etc/nginx/sites-enabled/default
 # Install supervisor.d
 RUN apk add -f supervisor
 RUN mkdir -p /var/log/supervisor
-COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisor.conf /opt/docker/etc/supervisord.conf
 #---------------------------------------------------
 
 #---------------------------------------------------

@@ -23,12 +23,7 @@ RUN apk update && apk add nginx
 RUN rm -rf /etc/nginx/sites-enabled/default
 #---------------------------------------------------
 
-#---------------------------------------------------
-# Install supervisor.d
-RUN apk add -f supervisor
-RUN mkdir -p /var/log/supervisor
-COPY supervisor.conf /opt/docker/etc/supervisor.conf
-#---------------------------------------------------
+
 
 #---------------------------------------------------
 #Configure nginx
@@ -135,4 +130,10 @@ RUN git clone https://github.com/s3fs-fuse/s3fs-fuse.git; \
 
 #---------------------------------------------------
 
+#---------------------------------------------------
+# Install supervisor.d
+RUN apk add -f supervisor
+RUN mkdir -p /var/log/supervisor
+COPY supervisor.conf /opt/docker/etc/supervisor.conf
+#---------------------------------------------------
 CMD ["/entry.sh"]

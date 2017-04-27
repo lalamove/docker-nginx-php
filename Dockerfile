@@ -130,6 +130,9 @@ RUN git clone https://github.com/s3fs-fuse/s3fs-fuse.git; \
 
 #---------------------------------------------------
 
+RUN apk add -f --update make cmake gcc g++ gfortran
+RUN apk add -f --update python py-pip python-dev
+
 #---------------------------------------------------
 # Install supervisor.d
 RUN apk add -f supervisor

@@ -47,7 +47,7 @@ COPY _htpasswd                       /opt/docker/etc/nginx/_htpasswd
 
 #---------------------------------------------------
 ##Testing nginx
-#COPY nginx.conf                     /etc/nginx/nginx.conf
+COPY nginx.conf                     /etc/nginx/nginx.conf
 #COPY index.html                     /www/index.html
 
 ##Create a directory for html files##

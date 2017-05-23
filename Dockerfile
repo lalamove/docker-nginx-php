@@ -6,7 +6,11 @@ RUN apt-get update && apt-get install nginx -y \
 && apt-get install curl -y
 RUN rm -rf /etc/nginx/sites-enabled/default
 ####################################################
+
+####################################################
 RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+####################################################
+
 ####################################################
 # Configure nginx                                  #
 ####################################################
@@ -74,36 +78,13 @@ RUN sudo apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev
 ####################################################
 
 
-
-
-#---------------------------------------------------
-COPY docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
-#CMD ["nginx", "-g", "daemon off;"]
-#---------------------------------------------------
-
-
-
-
 ####################################################
 COPY entry.sh                        /entry.sh
 COPY before-entry.sh                 /before-entry.sh
 ####################################################
 
-#---------------------------------------------------
-##Testing nginx
-#COPY nginx.conf                     /etc/nginx/nginx.conf
-#COPY index.html                     /www/index.html
-#---------------------------------------------------
-##Create a directory for html files##
-#RUN mkdir /www
-#RUN chown -R www:www /var/lib/nginx
-#RUN chown -R www:www /www
-
-##Creating new user and group 'www' for nginx#
-#RUN adduser -D -u 1000 -g 'www' www
-#---------------------------------------------------
 
 USER docker
 EXPOSE 80 443
+
 CMD ["/entry.sh"]

@@ -77,8 +77,8 @@ RUN sudo apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev
 
 
 #---------------------------------------------------
-#COPY docker-entrypoint.sh /
-#ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 #CMD ["nginx", "-g", "daemon off;"]
 #---------------------------------------------------
 

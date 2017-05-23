@@ -1,16 +1,14 @@
 FROM ubuntu:14.04
 
 ####################################################
-RUN apt-get update && apt-get install nginx -y \
-&& apt-get install wget -y \
-&& apt-get install curl -y
+RUN apt-get update && apt-add nginx
 RUN rm -rf /etc/nginx/sites-enabled/default
 ####################################################
 
 ####################################################
 # Configure nginx                                  #
 ####################################################
-#RUN apt-add ca-certificates nginx -y
+RUN apk add ca-certificates nginx
 COPY nginx_geoip_params             /etc/nginx/geoip_params
 COPY nginx_log_format.conf          /opt/docker/etc/nginx/conf.d/10-nginx_log_format.conf
 COPY nginx_real_ip.conf             /opt/docker/etc/nginx/conf.d/10-nginx_real_ip.conf
@@ -33,56 +31,92 @@ RUN wget -q -O- http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.d
 ####################################################
 
 ####################################################
-RUN apt update
-RUN mkdir -p /var/log/php5-ypm/
+RUN apk update
+RUN mkdir -p /var/log/php5-fpm/
 
-#ref: http://www.bictor.com/2015/02/15/installing-mongodb-yor-php-in-ubuntu-14-04/
+#ref: http://www.bictor.com/2015/02/15/installing-mongodb-for-php-in-ubuntu-14-04/
 #ref: https://github.com/mongodb/mongo-php-driver/issues/138
-#ref: http://stackoverflow.com/questions/22555561/error-building-yatal-error-pcre-h-no-such-yile-or-directory
+#ref: http://stackoverflow.com/questions/22555561/error-building-fatal-error-pcre-h-no-such-file-or-directory
 #ref: https://docs.mongodb.com/ecosystem/drivers/php/
 ####################################################
+
+RUN apk add wget
 
 ####################################################
 # Install PHP packages
 RUN curl go-pear.org
-#RUN apt-add php-pear
-RUN apt-get install php5-dev -y
+#RUN apk add php-pear
+RUN apk add php5-dev
 ####################################################
 
 ####################################################
-RUN apt-get install -y libcurl4-openssl-dev \
- && apt-get install -y pkg-config \
- && apt-get install -y libssl-dev \
- && apt-get install -y libsslcommon2-dev \
- && apt-get install -y libpcre3-dev
-####################################################
+RUN apt-add -f libcurl4-openssl-dev \
+ && apt-add -f pkg-config \
+ && apt-add -f libssl-dev \
+ && apt-add -f libsslcommon2-dev \
+ && apt-add -f libpcre3-dev
+#---------------------------------------------------
 
-####################################################
+#---------------------------------------------------
+RUN pecl install mongodb
+### Cannot find autoconf. Please check your autoconf installation and the
+### $PHP_AUTOCONF environment variable. Then, rerun this script.
+
+CMD echo  "extension=mongodb.so" | sudo tee /etc/php5/mods-available/mongodb.ini
+CMD sudo ln -sfn ../../mods-available/mongodb.ini /etc/php5/cli/conf.d/20-mongodb.ini
+CMD sudo ln -sfn ../../mods-available/mongodb.ini /etc/php5/fpm/conf.d/20-mongodb.ini
+#---------------------------------------------------
+
+#---------------------------------------------------
+RUN pecl install mongo
+CMD echo "extension=mongo.so" | sudo tee /etc/php5/mods-available/mongo.ini
+CMD  ln -sfn ../../mods-available/mongo.ini /etc/php5/cli/conf.d/20-mongo.ini
+CMD  ln -sfn ../../mods-available/mongo.ini /etc/php5/fpm/conf.d/20-mongo.ini
+#---------------------------------------------------
+
+#---------------------------------------------------
+# do not use native mysql driver
+RUN  apk add -f remove php5-mysqlnd
+RUN  apk add -f  php5-mysql
+RUN  apk add -f php5-gmp
+#---------------------------------------------------
+
+#---------------------------------------------------
 # added s3fs command
-RUN sudo apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support automake libtool \
-&& sudo apt-get install -y pkg-config libssl-dev # See (*3) \
-&& git clone https://github.com/s3fs-fuse/s3fs-fuse \
-&& cd s3fs-fuse/ \
-&& ./autogen.sh \
-&& ./configure --prefix=/usr --with-openssl # See (*1) \
-&& make \
-&& sudo make install \
+# RUN add-apt-repository -y ppa:apachelogger/s3fs-fuse
+# RUN apk update
+# RUN apk add s3fs-fuse
 
-# RUN sudo add-apt-repository -f ppa:apachelogger/s3fs-yuse
-# RUN apt-get update
-# RUN apt-add s3fs-yuse
-####################################################
+# the following ENV need to be present
+ENV IAM_ROLE=none
+ENV MOUNT_POINT=/var/s3
+VOLUME /var/s3
+
+ARG S3FS_VERSION=v1.79
+
+RUN apk -f --update add fuse alpine-sdk automake autoconf libxml2-dev fuse-dev curl-dev git bash;
+RUN git clone https://github.com/s3fs-fuse/s3fs-fuse.git; \
+ cd s3fs-fuse; \
+ git checkout tags/${S3FS_VERSION}; \
+ ./autogen.sh; \
+ ./configure --prefix=/usr; \
+ make; \
+ make install; \
+ rm -rf /var/cache/apk/*;
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+EXPOSE 80 443
 #CMD ["nginx", "-g", "daemon off;"]
 #---------------------------------------------------
 
-####################################################
+
+
+#---------------------------------------------------
 COPY entry.sh                        /entry.sh
 COPY before-entry.sh                 /before-entry.sh
-####################################################
+#---------------------------------------------------
 
 #---------------------------------------------------
 ##Testing nginx
@@ -98,5 +132,4 @@ COPY before-entry.sh                 /before-entry.sh
 #RUN adduser -D -u 1000 -g 'www' www
 #---------------------------------------------------
 
-EXPOSE 80 443
 CMD ["/entry.sh"]

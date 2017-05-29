@@ -1,14 +1,34 @@
 FROM ubuntu:14.04
 
 ####################################################
-RUN apt-get update && apt-get install nginx -y \
-&& apt-get install wget -y \
-&& apt-get install curl -y
+RUN apt-get update -y
+#&& apt-get install nginx -y
+RUN apt-get install wget -y
+RUN apt-get install curl -y
 RUN rm -rf /etc/nginx/sites-enabled/default
 ####################################################
 
+RUN echo "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
+RUN echo "deb-src http://nginx.org/packages/mainline/ubuntu/ trusty nginx"  >> /etc/apt/sources.list
+
+RUN curl http://nginx.org/keys/nginx_signing.key | apt-key add -
+RUN sudo apt-get update
+RUN sudo apt-get install nginx
+
+
+RUN sudo apt-get install python-software-properties -y
+RUN sudo apt-get install software-properties-common -y
+RUN sudo apt-get update
+RUN sudo add-apt-repository -y ppa:ondrej/php5-oldstable
+RUN sudo apt-get install -y php5 php5-fpm
+
+
 ####################################################
-RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+#RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+RUN adduser --disabled-password --gecos '' r \
+&& adduser r sudo \
+&& echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 ####################################################
 
 ####################################################
@@ -48,9 +68,11 @@ RUN mkdir -p /var/log/php5-ypm/
 
 ####################################################
 # Install PHP packages
-RUN curl go-pear.org
-#RUN apt-add php-pear
-RUN apt-get install php5-dev -y
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install software-properties-common -y
+RUN apt-get install -y apache2
+RUN apt-get install -y pkg-php-tools
+
 ####################################################
 
 ####################################################
@@ -61,6 +83,19 @@ RUN apt-get install -y libcurl4-openssl-dev \
  && apt-get install -y libpcre3-dev
 ####################################################
 
+
+
+COPY supervisor.conf /opt/docker/etc/supervisor.conf
+
+
+RUN apt-get update -y
+RUN apt-get install -y git curl python3.4 python-pip supervisor
+
+
+#RUN ln -s /usr/local/bin/python /usr/bin/python
+
+
+
 ####################################################
 # added s3fs command
 RUN sudo apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support automake libtool \
@@ -70,21 +105,20 @@ RUN sudo apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev
 && ./autogen.sh \
 && ./configure --prefix=/usr --with-openssl # See (*1) \
 && make \
-&& sudo make install \
+&& sudo make install
 
 # RUN sudo add-apt-repository -f ppa:apachelogger/s3fs-yuse
 # RUN apt-get update
 # RUN apt-add s3fs-yuse
 ####################################################
 
-
 ####################################################
-COPY entry.sh                        /entry.sh
-COPY before-entry.sh                 /before-entry.sh
+COPY entry.sh /entry.sh
+RUN chmod +x /entry.sh
+COPY before-entry.sh /before-entry.sh
+RUN chmod +x /before-entry.sh
 ####################################################
-
-
-USER docker
+#USER docker
 EXPOSE 80 443
-
+ENTRYPOINT ["/entry.sh"]
 CMD ["/entry.sh"]

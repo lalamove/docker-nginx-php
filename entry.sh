@@ -1,7 +1,8 @@
 #!/bin/bash
 
-user=1000
-group=1000
+#
+user=root
+group=root
 
 if [ x"$WRITABLE_PATHS" != x ]
 then
